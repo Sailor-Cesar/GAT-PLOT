@@ -71,6 +71,21 @@ function getAccessToken(oAuth2Client, callback) {
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
+function deleteEvent(eventId, calendar) {
+  var params = {
+    calendarId: "primary",
+    eventId: eventId
+  };
+
+  calendar.events.delete(params, function(err) {
+    if (err) {
+      console.log("The API returned an error: " + err);
+      return;
+    }
+    console.log("Event deleted.");
+  });
+}
+
 function listEvents(auth) {
   const calendar = google.calendar({ version: "v3", auth });
   calendar.events.list(
@@ -87,6 +102,7 @@ function listEvents(auth) {
       if (events.length) {
         console.log("Upcoming 10 events:");
         var time0 = res.data.items[0].start.dateTime;
+        deleteEvent(res.data.items[0].id, calendar);
         console.log(time0);
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
@@ -97,4 +113,7 @@ function listEvents(auth) {
       }
     }
   );
+}
+if (typeof require != 'undefined' && require.main==module) {
+    listEvents();
 }

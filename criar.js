@@ -2,12 +2,16 @@ const fs = require("fs");
 const readline = require("readline");
 const { google } = require("googleapis");
 var moment = require("moment");
+// const show = require("./show.js");
 const meow = require("meow");
 const cli = meow("Usage");
 var input = cli.input;
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 const TOKEN_PATH = "token.json";
+var calendar;
+let time0;
+var events
 
 // Load client secrets from a local file.
 fs.readFile("credentials.json", (err, content) => {
@@ -73,12 +77,15 @@ function getAccessToken(oAuth2Client, callback) {
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function createEvents(auth,starttime,endtime) {
-  const calendar = google.calendar({ version: "v3", auth });
-  var email = "ccmr@cesar.school";
+function cale(auth) {
+  calendar = google.calendar({ version: "v3", auth });
+}
+
+function createEvents(auth, starttime, endtime) {
+  // cale(auth)
   const timeZone = "America/Bahia";
   var event = {
-    summary: "AGENDAMENTO COM O 'PLOT'",
+    summary: input[0],
     location: "Tiradentes ->  SALA X",
     description: "SALA AGENDADA PELO 'PLOT'",
     start: {
@@ -90,7 +97,7 @@ function createEvents(auth,starttime,endtime) {
       timeZone: timeZone
     },
     recurrence: ["RRULE:FREQ=DAILY;COUNT=1"],
-    attendees: [{ email: email }],
+    attendees: [{ email: input[0] }],
     reminders: {
       useDefault: false,
       overrides: [
@@ -118,9 +125,9 @@ function createEvents(auth,starttime,endtime) {
   );
 }
 
-function listEvents(auth) {
-  const calendar = google.calendar({ version: "v3", auth });
-  var time0 = null;
+function listEvents() {
+  // const calendar = google.calendar({ version: "v3", auth });
+  time0 = null;
   calendar.events.list(
     {
       calendarId: "primary",
@@ -131,29 +138,37 @@ function listEvents(auth) {
     },
     (err, res) => {
       if (err) return console.log("The API returned an error: " + err);
-      const events = res.data.items;
+      events = res.data.items;
       if (events.length) {
-        console.log("Upcoming 10 events:");
+        //  console.log("Upcoming 10 events:");
         time0 = res.data.items[0].start.dateTime;
-        console.error(time0);
+        console.log(time0);
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
-          console.log(`${start} - ${event.summary}`);
+          // console.log(`${start} - ${event.summary}`);
         });
       } else {
         console.log("No upcoming events found.");
       }
     }
   );
-  return time0;
 }
 
 function main(auth) {
+  cale(auth);
   var starttime = moment();
   var endtime = starttime.clone().add(1, "hour");
-  var aux = listEvents()
+  listEvents();
+  console.log("eeeee", time0);
+  // console.log("lool", endtime.diff(time0, "seconds"));
+  if (endtime.diff(time0, "seconds") < 0) {
+    // console.log("b");
+    endtime = time0;
+  }
   starttime.format();
+  // console.log(starttime);
   endtime.format();
-  
-  createEvents(auth,starttime,endtime);
+  // console.log(endtime);
+  console.log(input);
+  createEvents(auth, starttime, endtime);
 }
