@@ -120,7 +120,7 @@ function createEvents(auth, starttime, endtime) {
         return;
       }
 
-      console.log("Event created: %s", event.htmlLink);
+      console.log("Event created: %s", event.summary);
     }
   );
 }
@@ -142,13 +142,13 @@ function listEvents() {
       if (events.length) {
         //  console.log("Upcoming 10 events:");
         time0 = res.data.items[0].start.dateTime;
-        console.log(time0);
+        // console.log(time0);
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
           // console.log(`${start} - ${event.summary}`);
         });
       } else {
-        console.log("No upcoming events found.");
+        // console.log("No upcoming events found.");
       }
     }
   );
@@ -159,7 +159,7 @@ function main(auth) {
   var starttime = moment();
   var endtime = starttime.clone().add(1, "hour");
   listEvents();
-  console.log("eeeee", time0);
+  // console.log("eeeee", time0);
   // console.log("lool", endtime.diff(time0, "seconds"));
   if (endtime.diff(time0, "seconds") < 0) {
     // console.log("b");
