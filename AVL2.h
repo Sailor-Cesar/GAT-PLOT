@@ -141,3 +141,20 @@ char *return_email(struct No *arvore, int valor)
         }
     }
 }
+int inordem(struct No *x){
+    if(x!=NULL){
+        inordem(x->esquerda);
+        printf(" %d",x->info);
+        printf(" : %s \n",x->email);
+        inordem(x->direita);
+    }
+}
+int onordem(struct No *x){
+    if(x!=NULL){
+
+        printf(" %d",x->info);
+        printf(" : %s \n",x->email);
+        inordem(x->esquerda);
+        inordem(x->direita);
+    }
+}
