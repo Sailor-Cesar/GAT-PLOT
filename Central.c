@@ -17,10 +17,11 @@ int main()
         printf("Oque voce deseja?\n");
         printf("1 - Agendar Sala\n");
         printf("2 - Adicionar e-mail\n");
+        printf("3 - Mostrar cadastros(inordem)\n");
+        printf("4 - Mostrar cadastros(onordem)\n");
         printf("Sua escolha: ");
         scanf("%s", &choice);
         printf("\n");
-
         if (choice == '1')
         {
             printf("Insira seu ID: "); //Será substituido pelo RFID
@@ -49,7 +50,14 @@ int main()
             BD = inserir(email, ID, BD);
             continue;
         }
-        if (choice != '2' && choice != '1')
+        if(choice == '3'){
+            inordem(BD);
+        }
+        if (choice == '4')
+        {
+            onorderm(BD);
+        }
+        if (choice != '2' && choice != '1' && choice != '3' && choice != '4' )
         {
             printf("Escolha inválida\n");
             continue;
