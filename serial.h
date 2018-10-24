@@ -21,8 +21,8 @@ char *serial(char *ID)
 
 	if (fd == -1) /* Error Checking */
 		printf("\n  Error! in Opening ttyACM0  ");
-	else
-		printf("\n  WAIT ...\n ");
+	// else
+	// 	printf("\n  WAIT ...\n ");
 
 	/*---------- Setting the Attributes of the serial port using termios structure --------- */
 
@@ -49,7 +49,7 @@ char *serial(char *ID)
 	SerialPortSettings.c_oflag &= ~OPOST; /*No Output Processing*/
 
 	/* Setting Time outs */
-	SerialPortSettings.c_cc[VMIN] = 12; /* Read at least 12 characters */
+	SerialPortSettings.c_cc[VMIN] = 8; /* Read at least 12 characters */
 	SerialPortSettings.c_cc[VTIME] = 0; /* Wait indefinetly   */
 
 	/*------------------------------- Read data from serial port -----------------------------*/

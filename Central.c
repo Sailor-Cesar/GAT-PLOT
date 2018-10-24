@@ -15,6 +15,7 @@ int main()
     char *ID = malloc(sizeof(char) * 40);
     char Last_ID[8];
     char *email = malloc(sizeof(char) * 120);
+    int x = 0;
 
     while (1)
     {
@@ -42,11 +43,11 @@ int main()
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
             printf("        Você Selecionou : Agendamento");
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
-            printf("Passe o cartão: "); //RFID
-            serial(ID);                 //Lê duas vezes por um problema no RFID que não envia completamente o ID
+            printf("Passe o cartão:\n "); //RFID
+            do{
             serial(ID);
-            serial(ID);
-            printf("\n");
+            }while(return_email(BD, ID)==NULL);                 //Lê duas vezes por um problema no RFID que não envia completamente o ID
+
             if (ID == Last_ID) //Se o ID que quer agendar foi o ultimo a agendar ele cancela o ultimo agendamento
             {
                 printf("Cancelando ...");
@@ -58,16 +59,10 @@ int main()
             }
             strcpy(Last_ID,ID);  //DEFINE O ULTIMO ID A SER USADO
             email = return_email(BD, ID); //RETORNA E-MAIL DA ARVORE
-            if (email == NULL)
-            {
-                printf("ID inválido\n");
-                continue;
-            }
-
             marcar(email); //MARCA
             clear();
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
-            printf("        Você Selecionou : Marcado!");
+            printf("                Marcado!");
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
             continue;
 
@@ -76,9 +71,15 @@ int main()
 
             clear();
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
-            printf("        Você Selecionou : Cadastramento!");
+            printf("      Você Selecionou : Cadastramento!");
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
-            printf("Passe o cartão: "); //LER RFID
+            printf("Passe o cartão:"); //LER RFID
+            while(x!= 1){
+                serial(ID);
+                printf(" %s",ID);
+                printf("  O ID está correto?");
+                scanf("%d",&x);
+            }
             serial(ID);
             serial(ID);
             serial(ID);
@@ -91,6 +92,7 @@ int main()
 
             printf("Cadastrando...\n");
             BD = inserir(email, ID, BD); //INSERE NA ARVORE
+            x = 0;
             clear();
             printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
             printf("                Cadastrado!");
@@ -108,10 +110,10 @@ int main()
             printf("\n");
 
 /* ------------------------ DEFAULT --------------------------------------------------------- */
-        default:
-            clear();
-            printf("Escolha inválida\n"); //CASO NÂO ESCOLHA NENHUMA DAS OPÇÕES DADAS
-            continue;
+        // default:
+        //     clear();
+        //     printf("Escolha inválida\n"); //CASO NÂO ESCOLHA NENHUMA DAS OPÇÕES DADAS
+        //     continue;
         }
     }
     free(BD); //LIBERA O ESPAÇO NA MEMORIA
