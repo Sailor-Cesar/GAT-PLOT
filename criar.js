@@ -10,8 +10,8 @@ var input = cli.input;
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 const TOKEN_PATH = "token.json";
 var calendar;
-let time0;
-var events
+var time0;
+var events;
 
 // Load client secrets from a local file.
 fs.readFile("credentials.json", (err, content) => {
@@ -80,7 +80,20 @@ function getAccessToken(oAuth2Client, callback) {
 function cale(auth) {
   calendar = google.calendar({ version: "v3", auth });
 }
+function deleteEvent(eventId, calendar) {
+  var params = {
+    calendarId: "primary",
+    eventId: eventId
+  };
 
+  calendar.events.delete(params, function(err) {
+    if (err) {
+      console.log("The API returned an error: " + err);
+      return;
+    }
+    console.log("Event deleted.");
+  });
+}
 function createEvents(auth, starttime, endtime) {
   // cale(auth)
   const timeZone = "America/Bahia";
@@ -127,7 +140,7 @@ function createEvents(auth, starttime, endtime) {
 
 function listEvents() {
   // const calendar = google.calendar({ version: "v3", auth });
-  time0 = null;
+
   calendar.events.list(
     {
       calendarId: "primary",
@@ -142,7 +155,9 @@ function listEvents() {
       if (events.length) {
         //  console.log("Upcoming 10 events:");
         time0 = res.data.items[0].start.dateTime;
-        // console.log(time0);
+        console.log("time0", time0);
+        return time0;
+
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
           // console.log(`${start} - ${event.summary}`);
@@ -154,12 +169,43 @@ function listEvents() {
   );
 }
 
+function delete_Events(auth) {
+  // const calendar = google.calendar({ version: "v3", auth });
+  calendar.events.list(
+    {
+      calendarId: "primary",
+      timeMin: new Date().toISOString(),
+      maxResults: 10,
+      singleEvents: true,
+      orderBy: "startTime"
+    },
+    (err, res) => {
+      if (err) return console.log("The API returned an error: " + err);
+      const events = res.data.items;
+      if (events.length) {
+        // console.log("Upcoming 10 events:");
+        var time0 = res.data.items[0].start.dateTime;
+        deleteEvent(res.data.items[0].id, calendar);
+        console.log(time0, "Evento deletado");
+        // events.map((event, i) => {
+        //   const start = event.start.dateTime || event.start.date;
+        //   console.log(`${start} - ${event.summary}`);
+        // });
+      } else {
+        console.log("No upcoming events found.");
+      }
+    }
+  );
+}
+
+
+
 function main(auth) {
   cale(auth);
   var starttime = moment();
   var endtime = starttime.clone().add(1, "hour");
-  listEvents();
-  // console.log("eeeee", time0);
+  // listEvents();
+  // console.log("resposta", time0);
   // console.log("lool", endtime.diff(time0, "seconds"));
   if (endtime.diff(time0, "seconds") < 0) {
     // console.log("b");
@@ -170,5 +216,11 @@ function main(auth) {
   endtime.format();
   // console.log(endtime);
   console.log(input);
-  createEvents(auth, starttime, endtime);
+  if(input == '1'){
+    delete_Events(auth);
+  }
+  else{
+    createEvents(auth, starttime, endtime);
+  }
+
 }

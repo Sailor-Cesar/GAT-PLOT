@@ -1,77 +1,141 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "AVL2.h"
+#include "arvore1.h"
+#include "serial.h"
 #define MAX 100
 void marcar();
+void excluir();
+void clear();
 
 int main()
 {
     struct No *BD = NULL;
-    char choice;
-    int ID = 0;
-    char *email;
+    int choice;
+    char *ID = malloc(sizeof(char) * 40);
+    char Last_ID[8];
+    char *email = malloc(sizeof(char) * 120);
+
     while (1)
     {
-        ID = 0;
-        printf("Oque voce deseja?\n");
-        printf("1 - Agendar Sala\n");
-        printf("2 - Adicionar e-mail\n");
-        printf("3 - Mostrar cadastros(inordem)\n");
-        printf("4 - Mostrar cadastros(onordem)\n");
-        printf("Sua escolha: ");
-        scanf("%s", &choice);
+        /* ---------------------- MENU DE OPÇÔES ---------------------------------------------- */
+        // clear();
         printf("\n");
-        if (choice == '1')
+        printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+        printf("    Oque voce deseja?");
+        printf("\n //--//--//--//--//--//--//--//--//--//--//\n");
+        printf("\n1 - Criar/Cancelar agendamento\n");
+        printf("\n-----------------------------------\n");
+        printf("\n2 - Cadastramento\n");
+        printf("\n-----------------------------------\n");
+        printf("\n3 - Mostrar cadastros\n");
+        printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+        printf("\n\nSua escolha: ");
+/* -------------------------------------------------------------------------------------------- */
+        scanf("%d", &choice); //SUA ESCOLHA
+        printf("\n");
+        switch (choice)
         {
-            printf("Insira seu ID: "); //Será substituido pelo RFID
-            scanf("%d", &ID);
+        case 1:
+/* ----------------------------- OPÇÃO 1 ------------------------------------------------------ */
+            clear();
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+            printf("        Você Selecionou : Agendamento");
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
+            printf("Passe o cartão: "); //RFID
+            serial(ID);                 //Lê duas vezes por um problema no RFID que não envia completamente o ID
+            serial(ID);
+            serial(ID);
             printf("\n");
-            email = return_email(BD, ID);
+            if (ID == Last_ID) //Se o ID que quer agendar foi o ultimo a agendar ele cancela o ultimo agendamento
+            {
+                printf("Cancelando ...");
+                excluir(); //CANCELA
+                strcpy(Last_ID,"");
+                clear();
+                printf("Cancelado!");
+                continue;
+            }
+            strcpy(Last_ID,ID);  //DEFINE O ULTIMO ID A SER USADO
+            email = return_email(BD, ID); //RETORNA E-MAIL DA ARVORE
             if (email == NULL)
             {
                 printf("ID inválido\n");
                 continue;
             }
-            marcar(email);
+
+            marcar(email); //MARCA
+            clear();
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+            printf("        Você Selecionou : Marcado!");
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
             continue;
-        }
-        if (choice == '2')
-        {
 
-            printf("Insira seu ID: ");
-            scanf("%d", &ID);
+/* ------------------------ OPÇÃO 2----------------------------------------------------------- */
+        case 2:
 
+            clear();
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+            printf("        Você Selecionou : Cadastramento!");
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
+            printf("Passe o cartão: "); //LER RFID
+            serial(ID);
+            serial(ID);
+            serial(ID);
+            printf("%s", ID);
             printf("\n");
-            printf("Insira seu e-mail: ");
+
+            printf("Insira seu e-mail: "); //LER E-MAIL
             scanf("%s", email);
+            clear();
 
-            printf("\n");
-            BD = inserir(email, ID, BD);
+            printf("Cadastrando...\n");
+            BD = inserir(email, ID, BD); //INSERE NA ARVORE
+            clear();
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+            printf("                Cadastrado!");
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
             continue;
-        }
-        if(choice == '3'){
-            inordem(BD);
-        }
-        if (choice == '4')
-        {
-            onorderm(BD);
-        }
-        if (choice != '2' && choice != '1' && choice != '3' && choice != '4' )
-        {
-            printf("Escolha inválida\n");
+
+/* ------------------------ OPÇÃO 3 --------------------------------------------------------- */
+        case 3:
+            clear();
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n");
+            printf("    Você Selecionou : Verificar Cadastro");
+            printf("\n//--//--//--//--//--//--//--//--//--//--//\n\n");
+            printf("\n");
+            inordem(BD); //MOSTRA A ARVORE
+            printf("\n");
+
+/* ------------------------ DEFAULT --------------------------------------------------------- */
+        default:
+            clear();
+            printf("Escolha inválida\n"); //CASO NÂO ESCOLHA NENHUMA DAS OPÇÕES DADAS
             continue;
         }
     }
+    free(BD); //LIBERA O ESPAÇO NA MEMORIA
     return (0);
 }
-
+/* ----------------------- FUNÇÃO PARA MARCAR NO CALENDAR ----------------------------------- */
 void marcar(char *email_)
 {
     char command[50];
     char email[50];
-    strcpy(email, email_);
-    strcpy(command, "node criar.js ");
-    strcat(command, email);
-    system(command);
+    strcpy(email, email_);             //CRIA A STRING E-MAIL
+    strcpy(command, "node criar.js "); //CRIA A STRING COM O COMANDO PADRÃO
+    strcat(command, email);            //COLOCA O E-MAIL COMO ARGUMENTO
+    system(command);                   //RODA O PROGRAMA NO BASH
 }
+/* ----------------------- FUNÇÃO PARA EXCLUIR NO CALENDAR ----------------------------------- */
+void excluir()
+{
+    char command[50];
+    strcpy(command, "node criar.js 1"); //CRIA A STRING COMANDO COM ARGUMENTO 1
+    system(command);                    //RODA O PROGRAMA NO BASH
+}
+void clear(){
+    char command[50];
+    strcpy(command, "clear");
+    system(command);
+ }
